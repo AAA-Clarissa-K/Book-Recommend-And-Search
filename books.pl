@@ -165,33 +165,31 @@ genre_author_of(L0, Ans) :-
 
 genre_books_by_author(L0, Ans) :- 
     atomic_list_concat(L0, ' ', Author),
-    db(ID, title, Ans),
     db(ID, author, A),
-    string_lower(A, Author).
+    string_lower(A, Author),
+    db(ID, title, Ans).
 
 genre_of(L0, Ans) :- 
     atomic_list_concat(L0, ' ', Title),
     db(ID, title, T),
     string_lower(T, Title),
-    db(ID, genre, Ans).
+    db(ID, maingenre, Ans).
 
-book_rating_exact(L0, Ans) :-            % find book with specific rating
+book_rating_exact(L0, Ans) :-               % find book with exact rating
     atomic_list_concat(L0, ' ', Rating_String),
     atom_number(Rating_String, Rating),
     db(ID, rating, Rating),
     db(ID, title, Ans).
 book_rating_higher(L0, Ans) :-              % find genre_book with rating of at least 
-    atomic_list_concat(L0, ' ', Rating_String),
-    atom_number(Rating_String, Min),
-    atom_number(Rating, Rating_Number),
-    Min < Rating_Number,
+    atomic_list_concat(L0, ' ', Lower),
+    atom_number(Lower, Min),
+    Min < Rating,
     db(ID, rating, Rating),
     db(ID, title, Ans).
 book_rating_lower(L0, Ans) :-              % find book with rating of at least 
-    atomic_list_concat(L0, ' ', Rating_String),
-    atom_number(Rating_String, Max),
-    atom_number(Rating, Rating_Number),
-    Max > Rating_Number,
+    atomic_list_concat(L0, ' ', Upper),
+    atom_number(Upper, Max),
+    Max > Rating,
     Rating_Number > 0,
     db(ID, rating, Rating),
     db(ID, title, Ans).
