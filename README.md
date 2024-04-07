@@ -1,4 +1,4 @@
-**Book Search and Recommending System**
+### **Book Search and Recommending System**
 
 Developed a book search and recommender system, so that users can search information about books, and also get a recommendation by answering guiding questions regarding preferred genre, rating, author, popularity, etc.
 We limit the responses to 10 books at a time.
