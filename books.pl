@@ -7,7 +7,8 @@
     [recommend],
     initdb,
     write('Completed loading databases!\n\n'),
-    write('To begin, type "start(Ans)"\n').
+    write('For book recommendations, type "recommend."\n'),
+    write('To search for things about books, type "search(Ans)."\n').
 
 % Queries to retrieve book information:
 % isbn_book(ISBN, Title, Author, Publish_Year, Publisher, ImageLinkS, ImageLinkM, ImageLinkL).
@@ -21,22 +22,20 @@ ask(Q, A) :-
     question(Q, [], A).
 
 % To get the input from a line:
-start(Ans) :-
-    write('\nFor a book recommendation, type "recommend."\nFor help or example search queries, type "help"\nAsk me: '),
+search(Ans) :-
+    write('\nFor help or example search queries, type "help"\nAsk me: '),
     flush_output(current_output), 
     read_line_to_string(user_input, St),
     string_lower(St, St2),                          % convert string to lowercase
     not(member(St2, ["quit", "quit.", "q", "q."])), % quit or q ends interaction
-    (not(member(St2, ["recommend."])),
-        (not(member(St2, ["help", "help."])),
+    (not(member(St2, ["help", "help."])),
         split_string(St2, " -", " ,?.!-", Ln),      % ignore punctuation
-            (limit(10, ask(Ln, Ans)) ;              % Limits to 10 answers max
+            (limit(10, distinct(ask(Ln, Ans))) ;              % Limits to 10 answers max
             write('No more answers\n'),
-            start(Ans)) ;
+            search(Ans)) ;
         member(St2, ["help", "help."]),
         help,
-        start(Ans)) ;
-    recommend).
+        search(Ans)).
 
 % type in 'help' to get a list of possible queries
 help :-
@@ -46,6 +45,48 @@ help :-
     write('What is the title of the book with ISBN xxxxx?\n'),
     write('What books were published in xxxxx?\n'),
     write('What does the cover of xxxxxx look like?\n\n').
+
+%_______________________________________________________________________________
+% noun_phrase(L0,L4,Ind) is true if
+%  L0 and L4 are list of words, such that
+%        L4 is an ending of L0
+%        the words in L0 before L4 (written L0-L4) form a noun phrase
+%  Ind is an individual that the noun phrase is referring to
+
+% A noun phrase is a determiner followed by adjectives followed
+% by a noun followed by an optional modifying phrase:
+noun_phrase(L0, L2, Ind) :-
+    det(L0, L1, Ind),
+    % subj(L1, L2, Ind),
+    noun(L1, L2, Ind).
+    % mp(L2, L3, Ind).
+
+% Determiners
+det(["the" | L], L, _).
+det(["a" | L], L, _).
+det(L, L, _).
+
+% Referring to book
+subj(["book" | L], L, _).
+subj(L, L, _).
+
+% A modifying phrase / relative clause is either
+% a relation (verb or preposition) followed by a noun_phrase or
+mp(L0, L2, Ind) :-
+    noun_phrase(L0, L1, Ind), 
+    aphrase(L1, L2, Ind).
+mp(["and", "is" | L0], L2, Ind) :-
+    noun_phrase(L0, L1, Ind),
+    aphrase(L1, L2, Ind).
+mp(["that", "is" | L0], L2, Ind) :-
+    noun_phrase(L0, L1, Ind),
+    aphrase(L1, L2, Ind).
+mp(L, L, _).
+
+% a phrase is a noun_phrase or a modifying phrase
+% note that this uses 'aphrase' because 'phrase' is a static procedure in SWI Prolog
+aphrase(L0, L1, E) :- noun_phrase(L0, L1, E). 
+aphrase(L0, L1, E) :- mp(L0, L1, E).
 
 %_______________________________________________________________________________
 % question(Question, QR, Ind) is true if Ind is an answer to Question
@@ -63,46 +104,8 @@ question(["what", "are" | L0], L1, Ind) :-   % what are all the books by harper 
      noun_phrase(L0, L1, Ind).
 question(["what", "does" | L0], L1, Ind) :-  % what does the cover of to kill a mockingbird look like?
     noun_phrase(L0, L1, Ind).
-
 %_______________________________________________________________________________
-% noun_phrase(L0,L4,Ind) is true if
-%  L0 and L4 are list of words, such that
-%        L4 is an ending of L0
-%        the words in L0 before L4 (written L0-L4) form a noun phrase
-%  Ind is an individual that the noun phrase is referring to
-
-% A noun phrase is a determiner followed by adjectives followed
-% by a noun followed by an optional modifying phrase:
-noun_phrase(L0, L2, Ind) :-
-    det(L0, L1, Ind),
-    noun(L1, L2, Ind).
-
-% Determiners (articles)
-det(["the" | L], L, _).
-det(["a" | L], L, _).
-det(L, L, _).
-
-% Conjunctions (articles)
-conj(["and" | L], L, _).
-conj(["that" | L], L, _).
-conj(L, L, _).
-
-% A modifying phrase / relative clause is either
-% a relation (verb or preposition) followed by a noun_phrase or
-mp(L0, L2, Ind) :-
-    noun_phrase(L0, L1, Ind), 
-    aphrase(L1, L2, Ind).
-mp(["that" | L0], L2, Ind) :-
-    noun_phrase(L0, L1, Ind),
-    aphrase(L1, L2, Ind).
-
-% a phrase is a noun_phrase or a modifying phrase
-% note that this uses 'aphrase' because 'phrase' is a static procedure in SWI Prolog
-aphrase(L0, L1, E) :- noun_phrase(L0, L1, E). 
-% aphrase(L0, L1, E) :- mp(L0, L1, E).
-
-%_______________________________________________________________________________
-% nouns
+% facts regarding the author of the book or book by the author
 noun(["author", "of" | L0], _, Ind) :- % who is the author of to kill a mockingbird? in isbn dataset
     isbn_author_of(L0, Ind).
 noun(["author", "of" | L0], _, Ind) :- % who is the author of the complete novel of sherlock holmes? in genre dataset
@@ -112,26 +115,38 @@ noun(["books", "by" | L0], _, Ind) :- % What are all the books by harper lee?
     isbn_books_by_author(L0, Ind).
 noun(["books", "by" | L0], _, Ind) :- % who is the author of to kill a mockingbird?
     genre_books_by_author(L0, Ind).
+noun(["written", "by" | L0], _, Ind) :-
+    isbn_books_by_author(L0,Ind).
+noun(["written", "by" | L0], _, Ind) :-
+    genre_books_by_author(L0,Ind).
 
+% facts about the genre of a book, or book of that genre
 noun(["genre", "of" | L0], _, Ind) :-
     genre_of(L0, Ind).
+
+% facts based on isbn
 noun(["title", "of", "the", "book", "with", "isbn" | L0], _, Ind) :- % What is the title of the book with ISBN 1550135570?
     title_by_ISBN(L0, Ind).
-noun(["publishing", "year", "of" | B0], _, Ind) :-
-    publish_year(B0, Ind).
-noun(["published", "in" | Y0], _, Ind) :-
-    books_published_in(Y0, Ind).
+
+% facts based on publishing year
+noun(["publishing", "year", "of" | L0], _, Ind) :-
+    publish_year(L0, Ind).
+noun(["published", "in" | L0], _, Ind) :-
+    books_published_in(L0, Ind).
+
+% facts about the cover
 noun(["cover", "of" | L0], _, Ind) :-   % what does the cover of to kill a mockingbird look like?
     append(Title, ["look", "like"], L0),
     book_cover(Title, Ind).
 
+% facts about book ratings
 noun(["rating", "of", "exactly" | L0], _, Ind) :-
     book_rating_exact(L0, Ind).
 noun(["rating", "higher", "than" | L0], _, Ind) :-
     book_rating_higher(L0, Ind).
 noun(["rating", "lower", "than" | L0], _, Ind) :-
     book_rating_lower(L0, Ind).
-
+%_______________________________________________________________________________
 % Answers search queries relevant to isbn_book
 isbn_author_of(L0, Ans) :- 
     atomic_list_concat(L0, ' ', Title),
