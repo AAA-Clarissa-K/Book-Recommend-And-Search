@@ -24,11 +24,12 @@ guidingQuestions :-
     ask5, nl,
     read(Ans5), nl,
     cont(Ans5),
-    % print the first N matched films
-    writeln('We recommend following books:\n'),
+    % print the first 10 matched books
+    writeln('We recommend following books:'),
     forall(limit(10, distinct(recommend(Ans1, Ans2, Ans3, Ans4, Ans5, B, A))), wFunc(B, A)),
+    write('\n\nNo more books to recommend.'),
     write('\n\nFor more recommendations, type "recommend."'),
-    writeln('To return back to searching, type "search(Ans).').
+    write('\nTo return back to searching, type "search(Ans).').
 
 cont(Ans) :-
     term_string(Ans, St),
@@ -58,7 +59,7 @@ ask1 :-
     write('0. No preference\n'). 
 
 ask2(Ans) :-
-    write('Based on the previous main genre select a sub genre: '), nl,
+    write('Based on the previous main genre, select a sub genre: '), nl,
     (Ans == 1 -> writeln('1. Cinema & Broadcast'), writeln('2. Music'), writeln('3. Theater & Ballet'), write('0. No preference'));
     (Ans == 2 -> writeln('1. Analysis & Strategy'), writeln('2. Economics'), writeln('3. Industries'), write('0. No preference'));
     (Ans == 3 -> writeln('1. Computer Science'), writeln('2. Databases & Big Data'), writeln('3. Internet & Social Media'), write('0. No preference'));
@@ -120,7 +121,6 @@ q1(10, ID) :-
 % handle invalid input
 q1(Op, _) :- 
     not(member(Op, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])). 
-
  
 q2(0, _, _).
 % subgenres
@@ -200,7 +200,7 @@ q5(0, _).
 q5(Op, _) :-
     not(member(Op, [0, 1, 2])). 
 
-%   to add more questions, simply add another parameter and define all possible qn()'s for that question
+% Recommend a book once all questions have been answered
 recommend(Ans1, Ans2, Ans3, Ans4, Ans5, BookName, Author) :-
     db(ID, title, BookName),
     db(ID, author, Author),
@@ -208,4 +208,4 @@ recommend(Ans1, Ans2, Ans3, Ans4, Ans5, BookName, Author) :-
     q2(Ans2, ID, Ans1),
     q3(Ans3, ID),
     q4(Ans4, ID),
-    q5(Ans5, ID). 
+    q5(Ans5, ID).
