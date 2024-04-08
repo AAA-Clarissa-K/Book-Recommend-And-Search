@@ -7,8 +7,7 @@
     [recommend],
     initdb,
     write('Completed loading databases!\n\n'),
-    write('For book recommendations, type "recommend."\n'),
-    write('To search for things about books, type "search(Ans)."\n').
+    write('To begin, type "search(Ans)."\n').
 
 % Queries to retrieve book information:
 % isbn_book(ISBN, Title, Author, Publish_Year, Publisher, ImageLinkS, ImageLinkM, ImageLinkL).
@@ -23,17 +22,17 @@ ask(Q, A) :-
 
 % To get the input from a line:
 search(Ans) :-
-    write('\nFor a book recommendation, type "recommend"\nFor help or example search queries, type "help"\nAsk me: '),
+    write('\To get a book recommendation, type "recommend"\nFor help or example search queries, type "help"\nAsk me: '),
     flush_output(current_output), 
     read_line_to_string(user_input, St),
     string_lower(St, St2),                          % convert string to lowercase
     not(member(St2, ["quit", "quit.", "q", "q."])), % quit or q ends interaction
     (member(St2, ["recommend", "recommend."]) -> recommend ;
-     member(St2, ["help", "help."]) -> help, start(Ans) ;
+     member(St2, ["help", "help."]) -> help, search(Ans) ;
      split_string(St2, " -", " ,?.!-", Ln),      % ignore punctuation
-     (limit(10, distinct(ask(Ln, Ans))) ;              % Limits to 10 answers max
-      write('No more answers\n'),
-      start(Ans))).
+        (limit(10, ask(Ln, Ans)) ;              % Limits to 10 answers max
+        write('No more answers\n'),
+        search(Ans))).
 
 % type in 'help' to get a list of possible queries
 help :-
