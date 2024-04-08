@@ -7,9 +7,12 @@ load_isbn_book(Filename) :-
 
 % Define the predicate to assert book facts into the knowledge base.
 % Asserting books for dataset 1
-% Books in dataset 1 are represented by isbn_book(ISBN, Title, Author, Publish_Year, Publisher, Author_Rating, Book_Rating, Genre)
-assert_isbn_book(isbn_book(ISBN, Title, Author, Publish_Year, Publisher, ImageLinkS, ImageLinkM, ImageLinkL)) :-
-    assertz(isbn_book(ISBN, Title, Author, Publish_Year, Publisher, ImageLinkS, ImageLinkM, ImageLinkL)).
+assert_isbn_book(isbn_book(ISBN, Title, Author, Publish_Year, Publisher, _, _, ImageLink)) :-
+    assert( isbn_book(ISBN, title, Title) ), 
+    assert( isbn_book(ISBN, author, Author) ),
+    assert( isbn_book(ISBN, publishYear, Publish_Year) ),
+    assert( isbn_book(ISBN, publisher, Publisher) ),
+    assert( isbn_book(ISBN, imageLink, ImageLink) ).
 
 % Load the CSV file into the knowledge base
 :-  
