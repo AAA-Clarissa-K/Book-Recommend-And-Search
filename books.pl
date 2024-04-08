@@ -40,7 +40,9 @@ help :-
     write('Who is the author of x? / Who wrote x?\n'),
     write('What are all the books by x?\n'),
     write('What is the title of the book with ISBN x?\n'),
+    write('Who is the publisher for x?\n'),
     write('What books were published in yyyy?\n'),
+    write('What year was x published in?\n'),
     write('What does the cover of x look like?\n\n').
 
 %_______________________________________________________________________________
@@ -97,9 +99,11 @@ question(["what", "is" | L0], L1, Ind) :-    % What is the title of the book wit
     noun_phrase(L0, L1, Ind).
 question(["what", "is", "a", "book", "with" | L0], L1, Ind) :-    % What is a book with a rating of exactly 4.6?
     noun_phrase(L0, L1, Ind).
-question(["what", "are" | L0], L1, Ind) :-   % what are all the books by harper lee?
+question(["what", "are", "all" | L0], L1, Ind) :-   % what are all the books by harper lee?
      noun_phrase(L0, L1, Ind).
 question(["what", "does" | L0], L1, Ind) :-  % what does the cover of to kill a mockingbird look like?
+    noun_phrase(L0, L1, Ind).
+question(["what" | L0], L1, Ind) :-  % what books were published in 1999?
     noun_phrase(L0, L1, Ind).
 %_______________________________________________________________________________
 % facts regarding the author of the book or book by the author
@@ -108,13 +112,13 @@ noun(["author", "of" | L0], _, Ind) :- % who is the author of to kill a mockingb
 noun(["author", "of" | L0], _, Ind) :- % who is the author of the complete novel of sherlock holmes? in genre dataset
     genre_author_of(L0, Ind).
 
-noun(["books", "by" | L0], _, Ind) :- % What are all the books by harper lee?
+noun(["books", "by" | L0], _, Ind) :- % What are all the books by harper lee? in isbn dataset
     isbn_books_by_author(L0, Ind).
-noun(["books", "by" | L0], _, Ind) :- % who is the author of to kill a mockingbird?
+noun(["books", "by" | L0], _, Ind) :- % What are all the books by harper lee? in genre dataset
     genre_books_by_author(L0, Ind).
-noun(["written", "by" | L0], _, Ind) :-
+noun(["books", "written", "by" | L0], _, Ind) :- % What are all the books by harper lee? in isbn dataset
     isbn_books_by_author(L0,Ind).
-noun(["written", "by" | L0], _, Ind) :-
+noun(["books", "written", "by" | L0], _, Ind) :-  % What are all the books by harper lee? in genre dataset
     genre_books_by_author(L0,Ind).
 
 % facts about the genre of a book, or book of that genre
@@ -126,10 +130,15 @@ noun(["title", "of", "the", "book", "with", "isbn" | L0], _, Ind) :- % What is t
     title_by_ISBN(L0, Ind).
 
 % facts based on publishing year
-noun(["publishing", "year", "of" | L0], _, Ind) :-
-    publish_year(L0, Ind).
-noun(["published", "in" | L0], _, Ind) :-
+noun(["year", "was" | L0], _, Ind) :-       % What year was to kill a mockingbird published in?
+    append(Title, ["published", "in"], L0),
+    publish_year(Title, Ind).
+noun(["books", "were", "published", "in" | L0], _, Ind) :- % What books were published in 1999?
     books_published_in(L0, Ind).
+
+% facts based on publisher
+noun(["publisher", "for" | L0], _, Ind) :- % Who is the publisher for to kill a mockingbird?
+    books_publisher(L0, Ind).
 
 % facts about the cover
 noun(["cover", "of" | L0], _, Ind) :-   % what does the cover of to kill a mockingbird look like?
@@ -147,29 +156,45 @@ noun(["rating", "lower", "than" | L0], _, Ind) :-
 % Answers search queries relevant to isbn_book
 isbn_author_of(L0, Ans) :- 
     atomic_list_concat(L0, ' ', Title),
-    isbn_book(_, Title, Ans, _, _, _, _, _).
+    isbn_book(ISBN, title, T),
+    string_lower(T, Title),
+    isbn_book(ISBN, author, Ans).
 
 isbn_books_by_author(L0, Ans) :- 
     atomic_list_concat(L0, ' ', Author),
-    isbn_book(_, Ans, Author, _, _, _, _, _).
+    isbn_book(ISBN, author, A),
+    string_lower(A, Author),
+    isbn_book(ISBN, title, Ans).
 
 title_by_ISBN(L0, Ans) :-
     atomic_list_concat(L0, ' ', ISBN_string),
     atom_number(ISBN_string, ISBN),         % convert string to number, 
-    isbn_book(ISBN, Ans, _, _, _, _, _, _).
+    isbn_book(ISBN, title, Ans).
 
 books_published_in(L0, Ans) :-              % find books published in specified year
     atomic_list_concat(L0, ' ', Year_String),
     atom_number(Year_String, Year),
-    isbn_book(_, Ans, _, Year, _, _, _, _).
+    isbn_book(ISBN, publishYear, Year),
+    isbn_book(ISBN, title, Ans).
+
+books_publisher(L0, Ans) :-                 % find the publisher of a book
+    atomic_list_concat(L0, ' ', Title),
+    isbn_book(ISBN, title, T),
+    string_lower(T, Title),
+    isbn_book(ISBN, publisher, Ans).
 
 publish_year(L0, Ans) :-                    % find publish year of specified book
     atomic_list_concat(L0, ' ', Title),
-    isbn_book(_, Title, _, Ans, _, _, _, _).
+    isbn_book(ISBN, title, T),
+    string_lower(T, Title),
+    isbn_book(ISBN, publishYear, Ans).
 
 book_cover(L0, Ans) :-                      % find the link to cover of specified book
     atomic_list_concat(L0, ' ', Title),
-    isbn_book(_, Title, _, _, _, _, _, Ans).
+    isbn_book(ISBN, title, T),
+    string_lower(T, Title),
+    isbn_book(ISBN, imageLink, Ans).
+
 %_______________________________________________________________________________ data set 2
 % Answers search queries relevant to genre_book
 genre_author_of(L0, Ans) :- 
