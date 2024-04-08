@@ -23,28 +23,26 @@ ask(Q, A) :-
 
 % To get the input from a line:
 search(Ans) :-
-    write('\nFor help or example search queries, type "help"\nAsk me: '),
+    write('\nFor a book recommendation, type "recommend"\nFor help or example search queries, type "help"\nAsk me: '),
     flush_output(current_output), 
     read_line_to_string(user_input, St),
     string_lower(St, St2),                          % convert string to lowercase
     not(member(St2, ["quit", "quit.", "q", "q."])), % quit or q ends interaction
-    (not(member(St2, ["help", "help."])),
-        split_string(St2, " -", " ,?.!-", Ln),      % ignore punctuation
-            (limit(10, distinct(ask(Ln, Ans))) ;              % Limits to 10 answers max
-            write('No more answers\n'),
-            search(Ans)) ;
-        member(St2, ["help", "help."]),
-        help,
-        search(Ans)).
+    (member(St2, ["recommend", "recommend."]) -> recommend ;
+     member(St2, ["help", "help."]) -> help, start(Ans) ;
+     split_string(St2, " -", " ,?.!-", Ln),      % ignore punctuation
+        (limit(10, ask(Ln, Ans)) ;              % Limits to 10 answers max
+        write('No more answers\n'),
+        start(Ans))).
 
 % type in 'help' to get a list of possible queries
 help :-
     write('\nPossible Questions:\n'),
-    write('Who is the author of xxxxxx? / Who wrote xxxxxx?\n'),
-    write('What are all the books by xxxxx?\n'),
-    write('What is the title of the book with ISBN xxxxx?\n'),
-    write('What books were published in xxxxx?\n'),
-    write('What does the cover of xxxxxx look like?\n\n').
+    write('Who is the author of x? / Who wrote x?\n'),
+    write('What are all the books by x?\n'),
+    write('What is the title of the book with ISBN x?\n'),
+    write('What books were published in yyyy?\n'),
+    write('What does the cover of x look like?\n\n').
 
 %_______________________________________________________________________________
 % noun_phrase(L0,L4,Ind) is true if
