@@ -92,6 +92,8 @@ ask5 :-
 
 %_______________________________________________________________________________
 % Processing inputs
+
+% Genre question
 % q1(0, _) is always true since no preference
 q1(0, _).
 % q1(1, N) is true if book N has corresponding main genre
@@ -119,7 +121,46 @@ q1(10, ID) :-
 q1(Op, _) :- 
     not(member(Op, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])). 
 
-% book type
+/* 
+q2(0, _).
+% subgenres
+q2(1, ID) :- 
+    (Ans1 == 1 -> db(ID, subgenre, 'Cinema & Broadcast'));
+    (Ans1 == 2 -> db(ID, subgenre, 'Analysis & Strategy'));
+    (Ans1 == 3 -> db(ID, subgenre, 'Computer Science'));
+    (Ans1 == 4 -> db(ID, subgenre, 'Food, Drink & Entertaining'));
+    (Ans1 == 5 -> db(ID, subgenre, 'Fantasy'));
+    (Ans1 == 6 -> db(ID, subgenre, 'Classic Fiction'));
+    (Ans1 == 7 -> db(ID, subgenre, 'Administration & Policy'));
+    (Ans1 == 8 -> db(ID, subgenre, 'Clean & Wholesome'));
+    (Ans1 == 9 -> db(ID, subgenre, 'Athletics & Gymnastics'));
+    (Ans1 == 10 -> db(ID, subgenre, 'Romance')).
+q2(2, ID) :- 
+    (Ans1 == 1 -> db(ID, subgenre, 'Music'));
+    (Ans1 == 2 -> db(ID, subgenre, 'Economics'));
+    (Ans1 == 3 -> db(ID, subgenre, 'Databases & Big Data'));
+    (Ans1 == 4 -> db(ID, subgenre, 'Gardening & Landscape Design'));
+    (Ans1 == 5 -> db(ID, subgenre, 'Horror'));
+    (Ans1 == 6 -> db(ID, subgenre, 'Crime, Thriller & Mystery'));
+    (Ans1 == 7 -> db(ID, subgenre, 'Nursing'));
+    (Ans1 == 8 -> db(ID, subgenre, 'Enemies to Lovers'));
+    (Ans1 == 9 -> db(ID, subgenre, 'Combat Sports & Self-Defence'));
+    (Ans1 == 10 -> db(ID, subgenre, 'Science Fiction & Fantasy')).
+q2(3, ID) :- 
+    (Ans1 == 1 -> db(ID, subgenre, 'Theater & Ballet'));
+    (Ans1 == 2 -> db(ID, subgenre, 'Industries'));
+    (Ans1 == 3 -> db(ID, subgenre, 'Internet & Social Media'));
+    (Ans1 == 4 -> db(ID, subgenre, 'Lifestyle & Personal Style Guides'));
+    (Ans1 == 6 -> db(ID, subgenre, 'Myths, Legends & Sagas'));
+    (Ans1 == 7 -> db(ID, subgenre, 'Research'));
+    (Ans1 == 8 -> db(ID, subgenre, 'Romantic Comedy'));
+    (Ans1 == 9 -> db(ID, subgenre, 'Field Sports'));
+    (Ans1 == 10 -> db(ID, subgenre, 'Social & Family Issues')).
+% handle invalid input
+q2(Op, _) :- not( member(Op, [0, 1, 2, 3]) ). 
+*/
+
+% Book type - paperback, kindle, hardcover
 q3(0, _).
 q3(1, ID) :-
     db(ID, type, 'Paperback').
@@ -131,7 +172,7 @@ q3(3, ID) :-
 q3(Op, _) :- 
     not( member(Op, [0, 1, 2, 3]) ). 
 
-% ratings 
+% Book rating 
 q4(0, _).
 q4(1, ID) :-
     db(ID, rating, X),
@@ -143,7 +184,8 @@ q4(2, ID) :-
 q4(Op, _) :- 
     not(member(Op, [0, 1, 2])). 
 
-% q4(1, ID) is true if votes >= 5000
+% Book popularity 
+% q5(1, ID) is true if votes >= 5000
 q5(1, ID) :-
     db(ID, votes, S),
     S >= 5000.
