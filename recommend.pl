@@ -13,8 +13,8 @@ guidingQuestions :-
     ask1,
     read(Ans1), nl,
     cont(Ans1),
-    % ask2,
-    % read(Ans2), nl
+    ask2(Ans1), nl, 
+    read(Ans2), nl,
     ask3, nl, 
     read(Ans3), nl,
     cont(Ans3),
@@ -24,11 +24,12 @@ guidingQuestions :-
     ask5, nl,
     read(Ans5), nl,
     cont(Ans5),
-    % print the first N matched films
-    writeln('We recommend following books:\n'),
-    forall(limit(10, distinct(recommend(Ans1, Ans3, Ans4, Ans5, B, A))), wFunc(B, A)),
+    % print the first 10 matched books
+    writeln('We recommend following books:'),
+    forall(limit(10, distinct(recommend(Ans1, Ans2, Ans3, Ans4, Ans5, B, A))), wFunc(B, A)),
+    write('\n\nNo more books to recommend.'),
     write('\n\nFor more recommendations, type "recommend."'),
-    writeln('To return back to searching, type "search(Ans).').
+    write('\nTo return back to searching, type "search(Ans).').
 
 cont(Ans) :-
     term_string(Ans, St),
@@ -55,21 +56,21 @@ ask1 :-
     writeln('8. Romance'),
     writeln('9. Sports'),
     writeln('10. Teen & Young Adult'),
-    writeln('0. No preference'). 
-/*
+    write('0. No preference\n'). 
+
 ask2(Ans) :-
-    write('Based on the previous main genre select a sub genre: '), nl,
-    (Ans == 1 -> writeln('1. Cinema & Broadcast'), writeln('2. Music'), writeln('3. Theater & Ballet'), writeln('0. No preference'));
-    (Ans == 2 -> writeln('1. Analysis & Strategy'), writeln('2. Economics'), writeln('3. Industries'), writeln('0. No preference'));
-    (Ans == 3 -> writeln('1. Computer Science'), writeln('2. Databases & Big Data'), writeln('3. Internet & Social Media'), writeln('0. No preference'));
-    (Ans == 4 -> writeln('1. Food, Drink & Entertaining'), writeln('2. Gardening & Landscape Design'), writeln('3. Lifestyle & Personal Style Guides'), writeln('0. No preference'));
-    (Ans == 5 -> writeln('1. Fantasy'), writeln('2. Horror'), writeln('0. No preference'));
-    (Ans == 6 -> writeln('1. Classic Fiction'), writeln('2. Crime, Thriller & Mystery'), writeln('3. Myths, Legends & Sagas'), writeln('0. No preference'));
-    (Ans == 7 -> writeln('1. Administration & Policy'), writeln('2. Nursing'), writeln('3. Research'), writeln('0. No preference'));
-    (Ans == 8 -> writeln('1. Clean & Wholesome'), writeln('2. Enemies to Lovers'), writeln('3. Romantic Comedy'), writeln('0. No preference'));
-    (Ans == 9 -> writeln('1. Athletics & Gymnastics'), writeln('2. Combat Sports & Self-Defence'), writeln('3. Field Sports'), writeln('0. No preference'));
-    (Ans == 10 -> writeln('1. Romance'), writeln('2. Science Fiction & Fantasy'), writeln('3. Theater & Ballet'), writeln('0. No preference')).
-*/
+    write('Based on the previous main genre, select a sub genre: '), nl,
+    (Ans == 1 -> writeln('1. Cinema & Broadcast'), writeln('2. Music'), writeln('3. Theater & Ballet'), write('0. No preference'));
+    (Ans == 2 -> writeln('1. Analysis & Strategy'), writeln('2. Economics'), writeln('3. Industries'), write('0. No preference'));
+    (Ans == 3 -> writeln('1. Computer Science'), writeln('2. Databases & Big Data'), writeln('3. Internet & Social Media'), write('0. No preference'));
+    (Ans == 4 -> writeln('1. Food, Drink & Entertaining'), writeln('2. Gardening & Landscape Design'), writeln('3. Lifestyle & Personal Style Guides'), write('0. No preference'));
+    (Ans == 5 -> writeln('1. Fantasy'), writeln('2. Horror'), write('0. No preference'));
+    (Ans == 6 -> writeln('1. Classic Fiction'), writeln('2. Crime, Thriller & Mystery'), writeln('3. Myths, Legends & Sagas'), write('0. No preference'));
+    (Ans == 7 -> writeln('1. Administration & Policy'), writeln('2. Nursing'), writeln('3. Research'), write('0. No preference'));
+    (Ans == 8 -> writeln('1. Clean & Wholesome'), writeln('2. Enemies to Lovers'), writeln('3. Romantic Comedy'), write('0. No preference'));
+    (Ans == 9 -> writeln('1. Athletics & Gymnastics'), writeln('2. Combat Sports & Self-Defence'), writeln('3. Field Sports'), write('0. No preference'));
+    (Ans == 10 -> writeln('1. Romance'), writeln('2. Science Fiction & Fantasy'), writeln('3. Theater & Ballet'), write('0. No preference')).
+
 ask3 :-
     writeln('What type of book do you prefer? '),
     writeln('1. Paperback'), 
@@ -120,11 +121,10 @@ q1(10, ID) :-
 % handle invalid input
 q1(Op, _) :- 
     not(member(Op, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])). 
-
-/* 
-q2(0, _).
+ 
+q2(0, _, _).
 % subgenres
-q2(1, ID) :- 
+q2(1, ID, Ans1) :- 
     (Ans1 == 1 -> db(ID, subgenre, 'Cinema & Broadcast'));
     (Ans1 == 2 -> db(ID, subgenre, 'Analysis & Strategy'));
     (Ans1 == 3 -> db(ID, subgenre, 'Computer Science'));
@@ -135,7 +135,7 @@ q2(1, ID) :-
     (Ans1 == 8 -> db(ID, subgenre, 'Clean & Wholesome'));
     (Ans1 == 9 -> db(ID, subgenre, 'Athletics & Gymnastics'));
     (Ans1 == 10 -> db(ID, subgenre, 'Romance')).
-q2(2, ID) :- 
+q2(2, ID, Ans1) :- 
     (Ans1 == 1 -> db(ID, subgenre, 'Music'));
     (Ans1 == 2 -> db(ID, subgenre, 'Economics'));
     (Ans1 == 3 -> db(ID, subgenre, 'Databases & Big Data'));
@@ -146,7 +146,7 @@ q2(2, ID) :-
     (Ans1 == 8 -> db(ID, subgenre, 'Enemies to Lovers'));
     (Ans1 == 9 -> db(ID, subgenre, 'Combat Sports & Self-Defence'));
     (Ans1 == 10 -> db(ID, subgenre, 'Science Fiction & Fantasy')).
-q2(3, ID) :- 
+q2(3, ID, Ans1) :- 
     (Ans1 == 1 -> db(ID, subgenre, 'Theater & Ballet'));
     (Ans1 == 2 -> db(ID, subgenre, 'Industries'));
     (Ans1 == 3 -> db(ID, subgenre, 'Internet & Social Media'));
@@ -157,15 +157,18 @@ q2(3, ID) :-
     (Ans1 == 9 -> db(ID, subgenre, 'Field Sports'));
     (Ans1 == 10 -> db(ID, subgenre, 'Social & Family Issues')).
 % handle invalid input
-q2(Op, _) :- not( member(Op, [0, 1, 2, 3]) ). 
-*/
+q2(Op | _) :- 
+    not( member(Op, [0, 1, 2, 3]) ).
+
 
 % Book type - paperback, kindle, hardcover
 q3(0, _).
 q3(1, ID) :-
     db(ID, type, 'Paperback').
+% q3(2, ID) kindle edition
 q3(2, ID) :-
     db(ID, type, 'Kindle Edition').
+% q3(2, ID) hardcover
 q3(3, ID) :-
     db(ID, type, 'Hardcover').
 % handle invalid input
@@ -197,13 +200,12 @@ q5(0, _).
 q5(Op, _) :-
     not(member(Op, [0, 1, 2])). 
 
-%_______________________________________________________________________________
-%   to add more questions, add another parameter and define all possible qn()'s for that question
-recommend(Ans1, Ans3, Ans4, Ans5, BookName, Author) :-
+% Recommend a book once all questions have been answered
+recommend(Ans1, Ans2, Ans3, Ans4, Ans5, BookName, Author) :-
     db(ID, title, BookName),
     db(ID, author, Author),
     q1(Ans1, ID),
-    %q2(Ans2, ID),
+    q2(Ans2, ID, Ans1),
     q3(Ans3, ID),
     q4(Ans4, ID),
-    q5(Ans5, ID). 
+    q5(Ans5, ID).
