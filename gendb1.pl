@@ -13,6 +13,6 @@ assert_isbn_book(isbn_book(ISBN, Title, Author, Publish_Year, Publisher, ImageLi
 
 % Load the CSV file into the knowledge base
 :-  
-    writeln('Loading book databases...'),
+    write('Generating Database 1...\n'),
     load_isbn_book('dataset1.csv'),
-    writeln('Completed loading!\n\nTo begin, type "start(Ans)"').
+    write('Database 1 completed loading\n').

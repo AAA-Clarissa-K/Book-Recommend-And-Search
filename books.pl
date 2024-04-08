@@ -2,9 +2,12 @@
 
 % Initializing imports
 :- 
+    write('Loading book databases...\n'),
     [gendb1],
     [recommend],
-    initdb.
+    initdb,
+    write('Completed loading databases!\n\n'),
+    write('To begin, type "start(Ans)"\n').
 
 % Queries to retrieve book information:
 % isbn_book(ISBN, Title, Author, Publish_Year, Publisher, ImageLinkS, ImageLinkM, ImageLinkL).
@@ -190,6 +193,6 @@ book_rating_lower(L0, Ans) :-              % find book with rating of at least
     atomic_list_concat(L0, ' ', Upper),
     atom_number(Upper, Max),
     Max > Rating,
-    Rating_Number > 0,
+    Rating > 0,
     db(ID, rating, Rating),
     db(ID, title, Ans).

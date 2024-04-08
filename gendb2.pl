@@ -7,6 +7,7 @@
 % new dataset processed.
 
 initdb :-
+    writeln('Generating Database 2...'),
     open('dataset2.csv', read, Stream), 
     parseGenreBooks(Stream), 
     close(Stream). 
