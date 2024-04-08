@@ -31,9 +31,9 @@ search(Ans) :-
     (member(St2, ["recommend", "recommend."]) -> recommend ;
      member(St2, ["help", "help."]) -> help, start(Ans) ;
      split_string(St2, " -", " ,?.!-", Ln),      % ignore punctuation
-        (limit(10, ask(Ln, Ans)) ;              % Limits to 10 answers max
-        write('No more answers\n'),
-        start(Ans))).
+     (limit(10, distinct(ask(Ln, Ans))) ;              % Limits to 10 answers max
+      write('No more answers\n'),
+      start(Ans))).
 
 % type in 'help' to get a list of possible queries
 help :-
