@@ -166,11 +166,9 @@ q3(0, _).
 q3(1, ID) :-
     db(ID, type, 'Paperback').
 % q3(2, ID) kindle edition
-    db(ID, type, 'Paperback').
 q3(2, ID) :-
     db(ID, type, 'Kindle Edition').
 % q3(2, ID) hardcover
-    db(ID, type, 'Kindle Edition').
 q3(3, ID) :-
     db(ID, type, 'Hardcover').
 % handle invalid input

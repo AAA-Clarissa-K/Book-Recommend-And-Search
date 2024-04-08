@@ -22,7 +22,7 @@ ask(Q, A) :-
 
 % To get the input from a line:
 search(Ans) :-
-    write('\To get a book recommendation, type "recommend"\nFor help or example search queries, type "help"\nAsk me: '),
+    write('\nTo get a book recommendation, type "recommend"\nFor help or example search queries, type "help"\nAsk me: '),
     flush_output(current_output), 
     read_line_to_string(user_input, St),
     string_lower(St, St2),                          % convert string to lowercase
